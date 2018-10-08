@@ -1,6 +1,5 @@
-"""
-Simple DCGAN for the AbracaGAN talk.
-"""
+"""Simple DCGAN for the AbracaGAN talk."""
+
 import os
 from typing import Dict
 
@@ -24,17 +23,16 @@ def logging_summaries(
     summary_writer: tf.contrib.summary.SummaryWriter, logged: Dict
 ) -> None:
     """
-    Define a simple logging procedure to be used with AnoGAN stepwise training logging
-    call.
+    Define a simple logging procedure to use with AnoGAN stepwise `train()` logging call.
 
     Args:
         summary_writer: A `tf.contrib.summary.SummaryWriter` previously instatiated.
         logged: `Dict` collections of all the variables logged by the training ops.
 
     Returns:
-        None
-    """
+        None.
 
+    """
     with summary_writer.as_default(), tf.contrib.summary.always_record_summaries():
         tf.contrib.summary.image("generated", logged["generated_data"])
         tf.contrib.summary.image("real", logged["real_data"])
@@ -45,9 +43,9 @@ def logging_summaries(
 def load_fashion_mnist_train_dataset(hyper: Dict) -> tf.data.Dataset:
     (train_images, train_labels), (_, _) = tf.keras.datasets.fashion_mnist.load_data()
 
-    train_images = train_images.reshape(
-        processed_features.shape[0], *self.image_size
-    ).astype("float32")
+    train_images = train_images.reshape(train_images.shape[0], *(28, 28, 1)).astype(
+        "float32"
+    )
 
     # We are normalizing the images to the range of [-1, 1]
     train_images = (train_images - 127.5) / 127.5
@@ -134,6 +132,8 @@ class Discriminator(tf.keras.Model):
 
 
 class GAN:
+    """Base GAN offering a pluggable scaffolding for more complex models."""
+
     def __init__(
         self, generator: k.models.Model, discriminator: k.models.Model, hyper: Dict
     ) -> None:
@@ -211,6 +211,9 @@ class GAN:
 
 
 def main():
+    """
+    Executes the training.
+    """
     dataset = load_fashion_mnist_train_dataset(HYPER)
     gan = GAN(generator=Generator, discriminator=Discriminator, hyper=HYPER)
     gan.train(dataset, batch_size=HYPER["batch_size"], noise_dims=HYPER["noise_dims"])
